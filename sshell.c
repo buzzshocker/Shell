@@ -40,51 +40,43 @@ int main(void)
             fprintf(stderr, "Bye...\n");
             break;
         }
-
-        // splitting
-        int r = 0;
-        char str[512] = "";
-        int index = 0;
-        while (cmd[r] != ' ')
-        {
-            str[index] = cmd[r];
-            r++;
-            index++;
-        }
-        printf("str:%s\n", str);
-
+        char str[512];
         char argv[512];
-
-        argv[0] = '\0';
-        r++;
-        int i = 0;
-        while (cmd[r] != '\0')
+        char *token = strtok(cmd, " ");
+        int count = 0;
+        while (token != 0)
         {
-            argv[i] = cmd[r];
-            argv[i + 1] = '\0';
-            r++;
-            i++;
+            count++;
+            if (count == 1)
+            {
+                strcpy(str, token);
+            }
+            if (count == 2)
+            {
+                strcpy(argv, token);
+            }
+            if (count > 2)
+            {
+                strcat(argv, " ");
+                strcat(argv, token);
+            }
+            token = strtok(0, " ");
         }
-        // return 1;
-        printf("argv[0]: %c\n", argv[0]);
-
-        printf("cmd: %s\n", cmd);
 
         pid_t pid;
 
-        // char p[512];
-        // p[0] = '\0';
-
-        char *args[] = {str, argv, NULL};
-
-        printf("args[0]: %s\n", args[0]);
-        printf("args[1]: %s\n", args[1]);
-        // printf("args[2]: %s\n", args[2]);
-
-        // for (size_t i = 0; argv[i] != '\0'; i++)
-        // {
-        //     printf("%c\n", argv[i]);
-        // }
+        char *args[512] = {NULL, NULL, NULL};
+        if (count == 1)
+        {
+            args[0] = str;
+            args[1] = NULL;
+        }
+        else if (count > 1)
+        {
+            args[0] = str;
+            args[1] = argv;
+            args[2] = NULL;
+        }
 
         pid = fork();
         if (pid == 0)
@@ -108,23 +100,7 @@ int main(void)
             exit(1);
         }
         strcpy(str, "");
-        // strcpy(argv, "");
         argv[0] = '\0';
-        // int args_sz = sizeof args / sizeof args[0];
-        // for (int i = 0; i < args_sz; i++)
-        // {
-        //     args[i] = '\0';
-        // }
-        // args = {};
-        // memset(argv, 0, sizeof(argv));
-
-        printf("\nPRINTING\n");
-        // printf("argv[0]: %c\n", argv[0]);
-        // printf("argv[1]: %c\n", argv[1]);
-        // for (size_t i = 0; argv[i] != '\0'; i++)
-        // {
-        //     printf("%c\n", argv[i]);
-        // }
 
         // /* Regular command */
         // retval = system(cmd);
