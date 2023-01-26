@@ -148,8 +148,6 @@ int main(void) {
             counter++;
         }
 
-
-
         // If more than 16 arguments passed, display error message
         if (counter > ARGS) {
             fprintf(stderr, "Error: too many process arguments\n");
