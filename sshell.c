@@ -1,60 +1,53 @@
+#include <ctype.h>
+#include <fcntl.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
 #define ARGS 16
 #define CMDLINE_MAX 512
 
-struct cmdline_args{
+struct args
+{
     char *exec_args[ARGS];
-    char *arguments;
 };
 
-//  void pwd()
-//  {
-//      // Buffer to store the position in the directory
-//      char dir_name[CMDLINE_MAX];
-//      fprintf(stdout, "%s\n", getcwd(dir_name, sizeof(dir_name)));
-//      fprintf(stderr, "+ completed 'pwd' [0]\n");
-//  }
-
-void cd(struct cmdline_args cargs, char *cmd_cd)
+struct args argument;
+void ParsingFunc(char *dup)
 {
-    // If directory can't be entered, display error message and print to stder
-    // printf("aa%s", cargs.exec_args[1]);
-    if (chdir(cargs.exec_args[1]) != 0)
+    // printf("Inside PArsing\n");
+    // printf("dup:/%s/\n", dup);
+    int counter = 0;
+    char *word = strtok(dup, " ");
+    while (word != NULL)
     {
-        fprintf(stderr, "Error: cannot cd into directory\n");
-        fprintf(stderr, "+ completed '%s' [1]\n", cmd_cd);
+        // printf("word:/%s/\n", word);
+        argument.exec_args[counter] = word;
+        // printf("/%s/\n", argument.exec_args[counter]);
+        word = strtok(NULL, " ");
+        counter++;
     }
-     else
-     {
-         fprintf(stdout, "+ completed '%s' [0]\n", cmd_cd);
-     }
+    argument.exec_args[counter] = NULL;
+    counter++;
+    // for (int i = 0; i < counter; i++)
+    // {
+    //     printf("argument.exec_args[%d]:/%s/\n", i, argument.exec_args[i]);
+    // }
 }
 
 int main(void)
 {
     char cmd[CMDLINE_MAX];
-    char cmd_dup[CMDLINE_MAX];
-    char cmd_dup2[CMDLINE_MAX];
-    char cmd_dup3[CMDLINE_MAX];
+    char cmddup1[CMDLINE_MAX];
+    char cmddup2[CMDLINE_MAX];
+    char cmddup3[CMDLINE_MAX];
 
-    while (1) {
-        for(size_t i = 0; i < CMDLINE_MAX; i++){
-            cmd[i] = '\0';
-        }
+    while (1)
+    {
         char *nl;
-        // int retval = 0;
-        struct cmdline_args cargs;
-
-        for (size_t i = 0; i < ARGS; i++){
-            cargs.exec_args[i] = malloc(sizeof(char) * CMDLINE_MAX);
-        }
-        int status = 0;
+        // int retval;
 
         /* Print prompt */
         printf("sshell$ ");
@@ -62,8 +55,10 @@ int main(void)
 
         /* Get command line */
         fgets(cmd, CMDLINE_MAX, stdin);
-        // printf("CMD: %lu", strlen(cmd));
-        if (!isatty(STDIN_FILENO)) {
+
+        /* Print command line if stdin is not provided by terminal */
+        if (!isatty(STDIN_FILENO))
+        {
             printf("%s", cmd);
             fflush(stdout);
         }
@@ -73,76 +68,39 @@ int main(void)
         if (nl)
             *nl = '\0';
 
-        strcpy(cmd_dup, cmd);
-        strcpy(cmd_dup2, cmd);
-        strcpy(cmd_dup3, cmd);
-
-        /* Print command line if stdin is not provided by terminal */
+        strcpy(cmddup1, cmd);
+        strcpy(cmddup2, cmd);
+        strcpy(cmddup3, cmd);
 
         /* Builtin command */
-        if (!strcmp(cmd, "exit")) {
+        if (!strcmp(cmd, "exit"))
+        {
             fprintf(stderr, "Bye...\n");
-            fprintf(stderr, "+ completed 'exit' [0]\n");
             break;
         }
 
-
-//         if (!strcmp(cmd_dup, "pwd")){
-//              pwd();
-//              continue;
-//         }
-
-
-        int counter = 0;
-        // strcpy(cmd_dup , "echo hi");
-        char *token = strtok(cmd_dup," ");
-
-        // loop until strtok() returns NULL
-        while (token)  {
-
-            // print token
-            // printf("Token: /%s/\n", token);
-            strcpy(cargs.exec_args[counter], token);
-
-            // take subsequent tokens
-            token = strtok(NULL," ");
-            ++counter;
+        pid_t pid;
+        int status;
+        pid = fork();
+        if (pid > 0)
+        {
+            waitpid(pid, &status, 0);
+            /*Parent*/
         }
-        cargs.exec_args[counter] = NULL;
-        ++counter;
-
-        if (strstr(cmd_dup2, "cd") != NULL){
-            cd(cargs, cmd);
-            continue;
+        else if (pid == 0)
+        {
+            // printf("CMddup1:/%s/\n", cmddup1);
+            ParsingFunc(cmddup1);
+            /*Child*/
+            execvp(argument.exec_args[0], argument.exec_args);
+            perror("execvp");
+            exit(1);
         }
-
-        // printf("Counter: %d\n", counter);
-        // for (int i = 0; i < counter; i++){
-        //     printf("1: %s\n", cargs.exec_args[i]);
-        // }
 
         /* Regular command */
-        pid_t pid = fork();
-        if (pid > 0){
-            waitpid(pid, &status, 0);
-            // parent
-
-        }
-        else if (pid == 0){
-            // child
-            // cargs.exec_args[0] = "echo";
-            // cargs.exec_args[1] = "hi";
-            // cargs.exec_args[2] = NULL;
-            execvp(cargs.exec_args[0], cargs.exec_args);
-            exit(1);
-        }
-        else {
-            perror("fork");
-            exit(1);
-        }
-
-        fprintf(stderr, "+ completed '%s' [%d]\n",
-                cmd, status);
+        // retval = system(cmd);
+        // fprintf(stdout, "Return status value for '%s': %d\n",
+        //         cmd, retval);
     }
 
     return EXIT_SUCCESS;
