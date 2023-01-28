@@ -32,7 +32,7 @@ void cd(struct cmdline_args cargs, char *cmd_cd)
     }
     else
     {
-        fprintf(stderr, "+ completed '%s' [0]\n", cmd_cd);
+        fprintf(stdout, "+ completed '%s' [0]\n", cmd_cd);
     }
 }
 
