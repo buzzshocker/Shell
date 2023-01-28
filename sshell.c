@@ -13,13 +13,13 @@ struct cmdline_args{
     char *arguments;
 };
 
-void pwd()
-{
-    // Buffer to store the position in the directory
-    char dir_name[CMDLINE_MAX];
-    fprintf(stdout, "%s\n", getcwd(dir_name, sizeof(dir_name)));
-    fprintf(stderr, "+ completed 'pwd' [0]\n");
-}
+// void pwd()
+// {
+//     // Buffer to store the position in the directory
+//     char dir_name[CMDLINE_MAX];
+//     fprintf(stdout, "%s\n", getcwd(dir_name, sizeof(dir_name)));
+//     fprintf(stderr, "+ completed 'pwd' [0]\n");
+// }
 
 void cd(struct cmdline_args cargs, char *cmd_cd)
 {
@@ -87,10 +87,10 @@ int main(void)
             break;
         }
 
-        if (!strcmp(cmd_dup, "pwd")){
-            pwd();
-            continue;
-        }
+//         if (!strcmp(cmd_dup, "pwd")){
+//             pwd();
+//             continue;
+//         }
 
         int counter = 0;
         // strcpy(cmd_dup , "echo hi");
