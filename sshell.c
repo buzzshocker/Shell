@@ -30,10 +30,10 @@ void cd(struct cmdline_args cargs, char *cmd_cd)
         fprintf(stderr, "Error: cannot cd into directory\n");
         fprintf(stderr, "+ completed '%s' [1]\n", cmd_cd);
     }
-    else
-    {
-        fprintf(stdout, "+ completed '%s' [0]\n", cmd_cd);
-    }
+//     else
+//     {
+//         fprintf(stdout, "+ completed '%s' [0]\n", cmd_cd);
+//     }
 }
 
 int main(void)
