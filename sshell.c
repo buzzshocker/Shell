@@ -47,6 +47,7 @@ int main(void)
 
     while (1)
     {
+        bool output_redirect = false;
         char *nl;
         // int retval;
 
@@ -73,6 +74,8 @@ int main(void)
         strcpy(cmddup2, cmd);
         strcpy(cmddup3, cmd);
         strcpy(Cmdcd, cmd);
+        // int fd_pipe[2];
+        int fd_output = 0;
 
         /* Builtin command */
         if (!strcmp(cmd, "exit"))
@@ -95,12 +98,20 @@ int main(void)
                 fprintf(stderr, "Error: cannot cd into directory\n");
                 fprintf(stderr, "+ completed '%s' [1]\n", cmd);
             }
+            else
+            {
+                fprintf(stderr, "+ completed '%s' [0]\n", cmd);
+            }
             continue;
-            // else
-            // {
-            //     fprintf(stderr, "+ completed '%s' [0]\n", cmd);
-            // }
         }
+        char *filename;
+
+        // if (cargs.output_append == true)
+        // {
+        //     fd_output = open(cargs.out_file, O_WRONLY | O_CREAT | O_APPEND, 0664);
+        //     dup2(fd_output, STDOUT_FILENO);
+        //     close(fd_output);
+        // }
         // if (strstr(cmd, "pwd") != NULL)
         // {
         //     // Buffer to store the position in the directory
@@ -120,7 +131,37 @@ int main(void)
         else if (pid == 0)
         {
             // printf("CMddup1:/%s/\n", cmddup1);
-            ParsingFunc(cmddup1);
+            if (strchr(cmd, '>') != NULL)
+            {
+                output_redirect = true;
+                char *arg = strchr(cmd, '>');
+                if (arg != NULL)
+                {
+                    arg++;
+                }
+                filename = strtok(arg, " ");
+                // printf("FN /%s/\n", filename);
+                char *Comm = strtok(cmddup2, ">");
+                // printf("Cmd: /%s/\n", Comm);
+
+                ParsingFunc(Comm);
+                // for (int i = 0; i < 2; i++)
+                // {
+                //     printf("argument.exec_args[%d]:/%s/\n", i, argument.exec_args[i]);
+                // }
+            }
+            if (output_redirect == true)
+            {
+                // printf("Inside\n");
+                // printf("filename in out_red:/%s/\n", filename);
+                fd_output = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0664);
+                dup2(fd_output, STDOUT_FILENO);
+                close(fd_output);
+            }
+            else
+            {
+                ParsingFunc(cmddup1);
+            }
             /*Child*/
             execvp(argument.exec_args[0], argument.exec_args);
             perror("execvp");
@@ -129,7 +170,7 @@ int main(void)
         else
         {
         }
-//         fprintf(stderr, "+ completed '%s' [%d]\n", cmd, status);
+        fprintf(stderr, "+ completed '%s' [%d]\n", cmd, status);
 
         /* Regular command */
         // retval = system(cmd);
