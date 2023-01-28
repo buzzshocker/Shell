@@ -101,13 +101,6 @@ int main(void)
             }
             break;
         }
-        if (strstr(cmd, "pwd") != NULL)
-        {
-            // Buffer to store the position in the directory
-            char dir_name[CMDLINE_MAX];
-            fprintf(stdout, "%s\n", getcwd(dir_name, sizeof(dir_name)));
-            fprintf(stderr, "+ completed 'pwd' [0]\n");
-        }
 
         int status = 0;
         pid_t pid;
