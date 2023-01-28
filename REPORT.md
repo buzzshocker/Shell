@@ -49,7 +49,7 @@ There was a confusion we had while checking the reference implementation by the 
 
 ## Phase 5 - Pipelining
 
-Pipeling unfortunately doesn't work.
+Pipeling unfortunately doesn't work. We tried doing the pieplining after going to the OH. We fiorst tried for one pipe, which ended up working but it failed the other test cases, so we had to remove it to make other cases pass. We tried different methods but nothing else worked. 
 
 ## Phase 6 - Extra Features
 
