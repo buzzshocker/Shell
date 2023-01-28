@@ -48,6 +48,7 @@ int main(void)
     while (1)
     {
         bool output_redirect = false;
+        bool output_append = false;
         char *nl;
         // int retval;
 
@@ -131,8 +132,62 @@ int main(void)
         else if (pid == 0)
         {
             // printf("CMddup1:/%s/\n", cmddup1);
-            if (strchr(cmd, '>') != NULL)
+            if (strstr(cmd, ">>") != NULL)
             {
+                output_redirect = false;
+                output_append = true;
+
+                char *Frontcommand = strtok(cmddup3, ">>");
+                char file_name[CMDLINE_MAX];
+                char cga[CMDLINE_MAX];
+                strcpy(cga, Frontcommand);
+                Frontcommand = strtok(NULL, " ");
+                strcpy(file_name, Frontcommand);
+                filename = strtok(NULL, " ");
+                ParsingFunc(cga);
+
+                printf("ActualFN: /%s/\n", file_name);
+                for (int i = 0; i < 2; i++)
+                {
+                    printf("argument.exec_args[%d]:/%s/\n", i, argument.exec_args[i]);
+                }
+
+                // printf("strstr(cmd, >> ): %ld\n", strstr(cmd, ">>") - cmd);
+                // char *arg = strstr(cmd, ">>");
+                // printf("ARG1: %s\n", arg);
+                // if (arg != NULL)
+                // {
+                //     arg++;
+                // }
+                // arg++;
+                // printf("ARG2: %s\n", arg);
+                // filename = strtok(arg, " ");
+                // char *firstCommand = NULL;
+                // for (int i = 0; i < strstr(cmd, ">>") - cmd; i++)
+                // {
+                //     firstCommand[i] = cmd[i];
+                // }
+                // printf("FC /%s/\n", firstCommand);
+                // printf(" /%s/\n", filename);
+
+                // arg++;
+                // char cga[CMDLINE_MAX];
+                // strcpy(cga, arg);
+                // char *Frontcommand = strtok(cmddup3, ">>");
+                // filename = strtok(arg, " ");
+                // char *ActualFN = filename;
+                // filename = strtok(NULL, " ");
+                // ParsingFunc(Frontcommand);
+
+                // printf("ActualFN: /%s/\n", ActualFN);
+                // for (int i = 0; i < 2; i++)
+                // {
+                //     printf("argument.exec_args[%d]:/%s/\n", i, argument.exec_args[i]);
+                // }
+            }
+            else if (strchr(cmd, '>') != NULL)
+            {
+                output_append = false;
                 output_redirect = true;
                 char *arg = strchr(cmd, '>');
                 if (arg != NULL)
@@ -158,6 +213,14 @@ int main(void)
                 dup2(fd_output, STDOUT_FILENO);
                 close(fd_output);
             }
+            else if (output_append == true)
+            {
+                // printf("Inside\n");
+                // printf("filename in out_red:/%s/\n", filename);
+                fd_output = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0664);
+                dup2(fd_output, STDOUT_FILENO);
+                close(fd_output);
+            }
             else
             {
                 ParsingFunc(cmddup1);
@@ -180,3 +243,4 @@ int main(void)
 
     return EXIT_SUCCESS;
 }
+
