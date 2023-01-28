@@ -129,7 +129,7 @@ int main(void)
         else
         {
         }
-        fprintf(stderr, "+ completed '%s' [%d]\n", cmd, status);
+//         fprintf(stderr, "+ completed '%s' [%d]\n", cmd, status);
 
         /* Regular command */
         // retval = system(cmd);
