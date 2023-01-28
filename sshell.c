@@ -1,3 +1,8 @@
+/// Sources cited -
+// CITATIONS
+// https://codeforwin.org/c-programming/c-program-to-trim-trailing-white-space-characters-in-string
+// https://javatutoring.com/c-program-trim-leading-and-trailing-white-space-characters-from-string/
+
 #include <ctype.h>
 #include <fcntl.h>
 #include <stdbool.h>
@@ -31,10 +36,6 @@ void ParsingFunc(char *dup)
     }
     argument.exec_args[counter] = NULL;
     counter++;
-    // for (int i = 0; i < counter; i++)
-    // {
-    //     printf("argument.exec_args[%d]:/%s/\n", i, argument.exec_args[i]);
-    // }
 }
 
 int main(void)
@@ -44,6 +45,8 @@ int main(void)
     char cmddup2[CMDLINE_MAX];
     char cmddup3[CMDLINE_MAX];
     char Cmdcd[CMDLINE_MAX];
+    char Cmd_count[CMDLINE_MAX];
+    char Cmd_pipe[CMDLINE_MAX];
 
     while (1)
     {
@@ -53,7 +56,7 @@ int main(void)
         // int retval;
 
         /* Print prompt */
-        printf("sshell$ ");
+        printf("sshell@ucd$ ");
         fflush(stdout);
 
         /* Get command line */
@@ -75,6 +78,8 @@ int main(void)
         strcpy(cmddup2, cmd);
         strcpy(cmddup3, cmd);
         strcpy(Cmdcd, cmd);
+        strcpy(Cmd_count, cmd);
+        strcpy(Cmd_pipe, cmd);
         // int fd_pipe[2];
         int fd_output = 0;
 
@@ -105,21 +110,34 @@ int main(void)
             }
             continue;
         }
-        char *filename;
 
-        // if (cargs.output_append == true)
-        // {
-        //     fd_output = open(cargs.out_file, O_WRONLY | O_CREAT | O_APPEND, 0664);
-        //     dup2(fd_output, STDOUT_FILENO);
-        //     close(fd_output);
-        // }
-        // if (strstr(cmd, "pwd") != NULL)
-        // {
-        //     // Buffer to store the position in the directory
-        //     char dir_name[CMDLINE_MAX];
-        //     fprintf(stdout, "%s\n", getcwd(dir_name, sizeof(dir_name)));
-        //     fprintf(stderr, "+ completed 'pwd' [0]\n");
-        // }
+        int iterator = 0;
+        char* count_parse = strtok(Cmd_count, " ");
+        while (count_parse != NULL) {
+            count_parse = strtok(NULL, " ");
+            iterator++;
+        }
+
+        if (iterator > ARGS) {
+            fprintf(stderr, "Error: too many process arguments\n");
+            continue;
+        }
+
+        if ((strchr(cmd, '>') && strchr(cmd, '|')) || (strstr(cmd, ">>") && strchr(cmd, '|'))) {
+            if (strcspn(cmd, ">") < strcspn(cmd, "|") || strcspn(cmd, ">>") < strcspn(cmd, "|")) {
+                fprintf(stderr, "Error: mislocated output redirection\n");
+                continue;
+            }
+        }
+
+        if (strchr(cmd, '>') || strchr(cmd, '|') || strstr(cmd, ">>")) {
+            if (cmd[0] == '>' || cmd[0] == '|') {
+                fprintf(stderr, "Error: missing command\n");
+                continue;
+            }
+        }
+
+        char *filename;
 
         int status = 0;
         pid_t pid;
@@ -144,46 +162,11 @@ int main(void)
                 Frontcommand = strtok(NULL, " ");
                 strcpy(file_name, Frontcommand);
                 filename = strtok(NULL, " ");
-                ParsingFunc(cga);
-
-                printf("ActualFN: /%s/\n", file_name);
-                for (int i = 0; i < 2; i++)
-                {
-                    printf("argument.exec_args[%d]:/%s/\n", i, argument.exec_args[i]);
+                if (filename == NULL) {
+                    fprintf(stderr, "Error: no output file\n");
+                    continue;
                 }
-
-                // printf("strstr(cmd, >> ): %ld\n", strstr(cmd, ">>") - cmd);
-                // char *arg = strstr(cmd, ">>");
-                // printf("ARG1: %s\n", arg);
-                // if (arg != NULL)
-                // {
-                //     arg++;
-                // }
-                // arg++;
-                // printf("ARG2: %s\n", arg);
-                // filename = strtok(arg, " ");
-                // char *firstCommand = NULL;
-                // for (int i = 0; i < strstr(cmd, ">>") - cmd; i++)
-                // {
-                //     firstCommand[i] = cmd[i];
-                // }
-                // printf("FC /%s/\n", firstCommand);
-                // printf(" /%s/\n", filename);
-
-                // arg++;
-                // char cga[CMDLINE_MAX];
-                // strcpy(cga, arg);
-                // char *Frontcommand = strtok(cmddup3, ">>");
-                // filename = strtok(arg, " ");
-                // char *ActualFN = filename;
-                // filename = strtok(NULL, " ");
-                // ParsingFunc(Frontcommand);
-
-                // printf("ActualFN: /%s/\n", ActualFN);
-                // for (int i = 0; i < 2; i++)
-                // {
-                //     printf("argument.exec_args[%d]:/%s/\n", i, argument.exec_args[i]);
-                // }
+                ParsingFunc(cga);
             }
             else if (strchr(cmd, '>') != NULL)
             {
@@ -198,18 +181,21 @@ int main(void)
                 // printf("FN /%s/\n", filename);
                 char *Comm = strtok(cmddup2, ">");
                 // printf("Cmd: /%s/\n", Comm);
-
+                if (filename == NULL) {
+                    fprintf(stderr, "Error: no output file\n");
+                    continue;
+                }
                 ParsingFunc(Comm);
-                // for (int i = 0; i < 2; i++)
-                // {
-                //     printf("argument.exec_args[%d]:/%s/\n", i, argument.exec_args[i]);
-                // }
             }
             if (output_redirect == true)
             {
                 // printf("Inside\n");
                 // printf("filename in out_red:/%s/\n", filename);
                 fd_output = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0664);
+                if (fd_output == -1) {
+                    fprintf(stderr, "Error: cannot open output file\n");
+                    continue;
+                }
                 dup2(fd_output, STDOUT_FILENO);
                 close(fd_output);
             }
@@ -218,6 +204,10 @@ int main(void)
                 // printf("Inside\n");
                 // printf("filename in out_red:/%s/\n", filename);
                 fd_output = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0664);
+                if (fd_output == -1) {
+                    fprintf(stderr, "Error: cannot open output file\n");
+                    continue;
+                }
                 dup2(fd_output, STDOUT_FILENO);
                 close(fd_output);
             }
@@ -243,4 +233,3 @@ int main(void)
 
     return EXIT_SUCCESS;
 }
-
