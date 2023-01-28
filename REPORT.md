@@ -49,7 +49,7 @@ There was a confusion we had while checking the reference implementation by the 
 
 ## Phase 5 - Pipelining
 
-We started **phase 5** with making a struct for pipelining. Firstly, we would like to mention that our pipelining works only in cases where there is a single pipe. For which, we have two arrays in the struct for the same with a count variable to keep a track of the number of pipes that are there. We consider this to be the most confusing part of the assignment. We consulted the professor for their help which helped in us getting to the point where we got. Pipelining function handles most of the possible pipelined commands we passed to it. There could be an edge case we didn't test, but with our parsing implementation we should have correct arguments stored to the array which will be passed onto execvp, which will - just like phases before - take care of those commands in the ways desired. There was a lot of confusion with regards to the waitpid() and fork() processes, but we were able to adapt it in a way that will work in our limited implementation. Without any doubt, phase 5 took us the most time. 
+Pipeling unfortunately doesn't work.
 
 ## Phase 6 - Extra Features
 
