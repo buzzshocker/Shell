@@ -43,6 +43,7 @@ int main(void)
     char cmddup1[CMDLINE_MAX];
     char cmddup2[CMDLINE_MAX];
     char cmddup3[CMDLINE_MAX];
+    char Cmdcd[CMDLINE_MAX];
 
     while (1)
     {
@@ -71,16 +72,45 @@ int main(void)
         strcpy(cmddup1, cmd);
         strcpy(cmddup2, cmd);
         strcpy(cmddup3, cmd);
+        strcpy(Cmdcd, cmd);
 
         /* Builtin command */
         if (!strcmp(cmd, "exit"))
         {
             fprintf(stderr, "Bye...\n");
+            fprintf(stderr, "+ completed 'exit' [0]\n");
             break;
         }
+        if (strstr(cmd, "cd") != NULL)
+        {
+            char *split = strtok(Cmdcd, " ");
 
+            // printf("split1:/%s/\n", split);
+            split = strtok(NULL, " ");
+
+            // printf("split2:/%s/\n", split);
+
+            if (chdir(split) != 0)
+            {
+                fprintf(stderr, "Error: cannot cd into directory\n");
+                fprintf(stderr, "+ completed '%s' [1]\n", cmd);
+            }
+            else
+            {
+                fprintf(stderr, "+ completed '%s' [0]\n", cmd);
+            }
+            break;
+        }
+        if (strstr(cmd, "pwd") != NULL)
+        {
+            // Buffer to store the position in the directory
+            char dir_name[CMDLINE_MAX];
+            fprintf(stdout, "%s\n", getcwd(dir_name, sizeof(dir_name)));
+            fprintf(stderr, "+ completed 'pwd' [0]\n");
+        }
+
+        int status = 0;
         pid_t pid;
-        int status;
         pid = fork();
         if (pid > 0)
         {
@@ -96,6 +126,10 @@ int main(void)
             perror("execvp");
             exit(1);
         }
+        else
+        {
+        }
+        fprintf(stderr, "+ completed '%s' [%d]\n", cmd, status);
 
         /* Regular command */
         // retval = system(cmd);
