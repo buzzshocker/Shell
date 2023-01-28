@@ -95,6 +95,7 @@ int main(void)
                 fprintf(stderr, "Error: cannot cd into directory\n");
                 fprintf(stderr, "+ completed '%s' [1]\n", cmd);
             }
+            continue;
             // else
             // {
             //     fprintf(stderr, "+ completed '%s' [0]\n", cmd);
