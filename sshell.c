@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #define ARGS 16
@@ -81,6 +83,7 @@ int main(void)
         /* Builtin command */
         if (!strcmp(cmd, "exit")) {
             fprintf(stderr, "Bye...\n");
+            fprintf(stderr, "+ completed 'exit' [0]\n");
             break;
         }
 
