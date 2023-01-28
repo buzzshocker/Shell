@@ -112,7 +112,7 @@ int main(void)
 
         if (strstr(cmd_dup2, "cd") != NULL){
             cd(cargs, cmd);
-            continue;
+           // continue;
         }
 
         // printf("Counter: %d\n", counter);
